@@ -2,15 +2,16 @@ import json
 import os
 import re
 from datetime import datetime, timezone
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 import requests
 import feedparser
 import yaml
 from rapidfuzz import fuzz
 
-
 SEEN_FILE = "seen.json"
+
+REMOTE_SOURCE_PREFIXES = ("remotive", "remoteok", "weworkremotely")
 
 
 def load_config() -> dict:
@@ -40,11 +41,26 @@ def strip_html(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
-def safe_get(url: str) -> requests.Response:
-    headers = {"User-Agent": "job-radar/1.1"}
-    r = requests.get(url, headers=headers, timeout=40)
-    r.raise_for_status()
-    return r
+def http_get(url: str, params: Optional[dict] = None) -> Optional[requests.Response]:
+    try:
+        headers = {"User-Agent": "job-radar/1.2"}
+        r = requests.get(url, headers=headers, params=params, timeout=45)
+        # Não quebrar o job por 404/429/5xx — só ignora e segue
+        if r.status_code >= 400:
+            return None
+        return r
+    except requests.RequestException:
+        return None
+
+
+def get_json(url: str, params: Optional[dict] = None) -> Optional[Any]:
+    r = http_get(url, params=params)
+    if not r:
+        return None
+    try:
+        return r.json()
+    except Exception:
+        return None
 
 
 # -----------------------
@@ -53,7 +69,9 @@ def safe_get(url: str) -> requests.Response:
 def fetch_remotive(urls: List[str]) -> List[Dict[str, Any]]:
     out = []
     for url in urls:
-        data = safe_get(url).json()
+        data = get_json(url)
+        if not data:
+            continue
         for j in data.get("jobs", []):
             out.append({
                 "title": j.get("title", ""),
@@ -70,7 +88,9 @@ def fetch_remotive(urls: List[str]) -> List[Dict[str, Any]]:
 def fetch_remoteok(urls: List[str]) -> List[Dict[str, Any]]:
     out = []
     for url in urls:
-        data = safe_get(url).json()
+        data = get_json(url)
+        if not data:
+            continue
         jobs = [x for x in data if isinstance(x, dict) and "id" in x]
         for j in jobs:
             out.append({
@@ -89,7 +109,7 @@ def fetch_wwr_rss(urls: List[str]) -> List[Dict[str, Any]]:
     out = []
     for url in urls:
         feed = feedparser.parse(url)
-        for e in feed.entries:
+        for e in getattr(feed, "entries", []) or []:
             out.append({
                 "title": e.get("title", ""),
                 "company": "",
@@ -112,7 +132,9 @@ def fetch_greenhouse(boards: List[str]) -> List[Dict[str, Any]]:
         if not b:
             continue
         url = f"https://boards-api.greenhouse.io/v1/boards/{b}/jobs?content=true"
-        data = safe_get(url).json()
+        data = get_json(url)
+        if not data:
+            continue
         for j in data.get("jobs", []):
             loc = ""
             if isinstance(j.get("location"), dict):
@@ -136,7 +158,9 @@ def fetch_lever(companies: List[str]) -> List[Dict[str, Any]]:
         if not c:
             continue
         url = f"https://api.lever.co/v0/postings/{c}?mode=json"
-        data = safe_get(url).json()
+        data = get_json(url)
+        if not data or not isinstance(data, list):
+            continue
         for j in data:
             categories = j.get("categories", {}) or {}
             loc = categories.get("location", "") or ""
@@ -178,70 +202,94 @@ def is_brazil_job(location: str, cfg: dict) -> bool:
     return False
 
 
-def is_remote_job(location: str, title: str, description: str, cfg: dict) -> bool:
-    text = " ".join([norm(location), norm(title), norm(description)])
+def is_remote_job(job: Dict[str, Any], cfg: dict) -> bool:
+    # Se vem de boards remotos, consideramos remoto por default
+    src = (job.get("source") or "").lower()
+    if src.startswith(REMOTE_SOURCE_PREFIXES):
+        return True
+
+    text = " ".join([
+        norm(job.get("location", "")),
+        norm(job.get("title", "")),
+        norm(strip_html(job.get("description", ""))),
+    ])
+
     for k in cfg.get("remote_keywords", []):
-        if k in text:
+        if norm(k) in text:
             return True
     return False
+
+
+def should_exclude_title(title: str, cfg: dict) -> bool:
+    t = norm(title)
+    for b in cfg.get("exclude_title_keywords", []):
+        if norm(b) in t:
+            return True
+    return False
+
+
+def must_be_finance_domain(title: str, cfg: dict) -> bool:
+    t = norm(title)
+    # CFO sempre entra
+    if "cfo" in t or "chief financial officer" in t:
+        return True
+
+    must = cfg.get("must_contain_any_of", [])
+    if not must:
+        return True
+
+    return any(norm(k) in t for k in must)
 
 
 def title_match_score(title: str, cfg: dict) -> int:
     t = norm(title)
     best = 0
+
+    # Match direto (rápido e forte)
+    for k in cfg.get("target_title_keywords", []):
+        kk = norm(k)
+        if kk and kk in t:
+            return 75
+
+    # Fuzzy fallback
     for k in cfg.get("target_title_keywords", []):
         kk = norm(k)
         if not kk:
             continue
-        if kk in t:
-            return 70  # match direto no título = forte
         best = max(best, fuzz.partial_ratio(kk, t))
-    # fuzzy
+
     if best >= 90:
-        return 60
+        return 65
     if best >= 85:
-        return 50
+        return 55
     if best >= 80:
-        return 40
+        return 45
     return 0
 
 
-def should_exclude(title: str) -> bool:
-    t = norm(title)
-    # exclui níveis abaixo do que você pediu
-    blockers = [
-        "intern", "estagi", "analyst", "analista", "coordinator", "coordenador", "coordenadora",
-        "specialist", "especialista", "supervisor", "supervisão", "assistant", "assistente",
-        "manager", "gerente",
-    ]
-    # exceção: “General Manager” às vezes é c-level disfarçado — mas é raro no nosso alvo.
-    return any(b in t for b in blockers)
-
-
 def score_job(job: Dict[str, Any], cfg: dict) -> int:
-    title = job.get("title", "")
-    desc = strip_html(job.get("description", ""))
-    loc = job.get("location", "")
+    title = job.get("title", "") or ""
+    desc = strip_html(job.get("description", "") or "")
+    loc = job.get("location", "") or ""
 
-    # regra Brasil vs Internacional remoto
+    if should_exclude_title(title, cfg):
+        return 0
+
+    # Anti-ruído: Director/Head/VP/SVP só se for área certa
+    if not must_be_finance_domain(title, cfg):
+        return 0
+
     br = is_brazil_job(loc, cfg)
-    remote = is_remote_job(loc, title, desc, cfg)
+    remote = is_remote_job(job, cfg)
 
     if cfg.get("require_remote_outside_brazil", True) and (not br) and (not remote):
         return 0
 
-    if should_exclude(title):
+    # Precisa parecer cargo-alvo
+    score = title_match_score(title, cfg)
+    if score == 0:
         return 0
 
-    score = 0
-
-    # score por título (principal)
-    score += title_match_score(title, cfg)
-
-    if score == 0:
-        return 0  # se não parece cargo-alvo, nem continua
-
-    # bônus por palavras-chave no descritivo
     d = norm(desc)
     bonus = 0
     for k in cfg.get("nice_keywords_desc", []):
@@ -249,11 +297,10 @@ def score_job(job: Dict[str, Any], cfg: dict) -> int:
             bonus += 3
     score += min(bonus, 25)
 
-    # bônus por Brasil (presencial/híbrido ok) e remoto
     if br:
-        score += 8
+        score += 6
     if remote:
-        score += 8
+        score += 6
 
     return min(max(score, 0), 100)
 
@@ -264,18 +311,21 @@ def format_message(new_jobs: List[Dict[str, Any]], cfg: dict) -> str:
         return f"🛰️ Job Radar ({today}): nada novo acima do seu filtro hoje."
 
     lines = [f"🛰️ Job Radar ({today}) — {len(new_jobs)} vaga(s) nova(s):\n"]
-    for j in new_jobs[: cfg.get("max_items_per_day", 15)]:
+    for j in new_jobs[: cfg.get("max_items_per_day", 12)]:
         score = j.get("score", 0)
         title = (j.get("title") or "").strip()
         company = (j.get("company") or "").strip()
         loc = (j.get("location") or "").strip()
         url = (j.get("apply_url") or "").strip()
+        src = (j.get("source") or "").strip()
 
         header = f"• [{score}] {title}"
         if company:
             header += f" — {company}"
         if loc:
             header += f" ({loc})"
+        if src:
+            header += f" [{src}]"
 
         lines.append(header)
         lines.append(url)
@@ -300,36 +350,32 @@ def main():
     cfg = load_config()
     seen = load_seen()
 
-    items = []
+    items: List[Dict[str, Any]] = []
 
-    # fontes remotas
     src = cfg.get("sources", {})
     items += fetch_remotive(src.get("remotive", []))
     items += fetch_remoteok(src.get("remoteok", []))
     items += fetch_wwr_rss(src.get("weworkremotely_rss", []))
 
-    # ATS de empresas (ótimo para BR presencial/híbrido)
     watch = cfg.get("company_watchlist", {})
     items += fetch_greenhouse(watch.get("greenhouse_boards", []))
     items += fetch_lever(watch.get("lever_companies", []))
 
     items = dedupe(items)
 
-    # só vagas novas (por URL)
     fresh = [j for j in items if j.get("apply_url") and j["apply_url"] not in seen]
 
     scored = []
     for j in fresh:
         s = score_job(j, cfg)
         j["score"] = s
-        if s >= cfg.get("min_score_to_send", 60):
+        if s >= cfg.get("min_score_to_send", 72):
             scored.append(j)
 
     scored.sort(key=lambda x: x["score"], reverse=True)
 
     send_telegram(format_message(scored, cfg))
 
-    # marca tudo como visto pra não repetir amanhã
     for j in items:
         url = (j.get("apply_url") or "").strip()
         if url:
@@ -339,3 +385,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
