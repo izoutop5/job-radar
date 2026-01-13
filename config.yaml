@@ -3,7 +3,7 @@
 # - Se a vaga NÃO estiver no Brasil: só entra se for 100% remota.
 require_remote_outside_brazil: true
 
-# Palavras que “denunciam” que a vaga é no Brasil (para permitir presencial/híbrido)
+# Palavras que indicam que a vaga é no Brasil (para permitir presencial/híbrido)
 brazil_location_keywords:
   - brasil
   - brazil
@@ -47,15 +47,31 @@ remote_keywords:
   - wfh
   - anywhere
   - distributed
-  - worldwide
-  - global
   - home office
   - remoto
   - 100% remoto
   - trabalho remoto
-  - híbrido
-  - hibrido
-  - hybrid
+  - remoto (br)
+  - remote (br)
+
+# Bloqueia "Director/Head/VP/SVP" que não sejam da área certa (anti-ruído)
+# (o main.py usa isto direto no título)
+must_contain_any_of:
+  - finance
+  - financial
+  - accounting
+  - controllership
+  - controller
+  - controlling
+  - tax
+  - treasury
+  - fp&a
+  - fiscal
+  - tribut
+  - impostos
+  - contab
+  - controladoria
+  - tesouraria
 
 # Títulos-alvo (PT + EN) — CFO, Director, Head, VP, SVP
 target_title_keywords:
@@ -88,8 +104,6 @@ target_title_keywords:
   - accounting director
   - director of accounting
   - head of accounting
-  - diretor de contabilidade
-  - diretora de contabilidade
   - diretor de contabilidade
   - diretora de contabilidade
 
@@ -173,7 +187,6 @@ nice_keywords_desc:
   - tribut
   - impostos
   - fp&a
-  - planejamento financeiro
   - shared services
   - ssc
   - coe
@@ -186,35 +199,38 @@ nice_keywords_desc:
   - transfer pricing
   - indirect tax
   - direct tax
-  - vat
   - payroll
 
-# Filtro mínimo
-min_score_to_send: 60
-max_items_per_day: 15
+# Reduz spam (e evita mensagem gigante no Telegram)
+min_score_to_send: 72
+max_items_per_day: 12
 
-# Fontes “boards” remotas
+# Fontes “boards” remotas (já são remotas por natureza)
 sources:
   remotive:
     - "https://remotive.com/api/remote-jobs?search=cfo"
     - "https://remotive.com/api/remote-jobs?search=finance%20director"
     - "https://remotive.com/api/remote-jobs?search=head%20of%20finance"
-    - "https://remotive.com/api/remote-jobs?search=tax%20director"
-    - "https://remotive.com/api/remote-jobs?search=treasury"
     - "https://remotive.com/api/remote-jobs?search=vp%20finance"
     - "https://remotive.com/api/remote-jobs?search=svp%20finance"
+    - "https://remotive.com/api/remote-jobs?search=tax%20director"
+    - "https://remotive.com/api/remote-jobs?search=head%20of%20tax"
+    - "https://remotive.com/api/remote-jobs?search=treasury%20director"
+    - "https://remotive.com/api/remote-jobs?search=head%20of%20treasury"
+    - "https://remotive.com/api/remote-jobs?search=controllership"
+    - "https://remotive.com/api/remote-jobs?search=accounting%20director"
   remoteok:
     - "https://remoteok.com/api"
   weworkremotely_rss:
     - "https://weworkremotely.com/remote-jobs.rss"
 
-# Lista de empresas para monitorar via ATS (Greenhouse e Lever)
-# IMPORTANTE: seu main.py (que te passei) lê exatamente:
-# company_watchlist:
-#   greenhouse_boards: [...]
-#   lever_companies: [...]
+# Empresas grandes operando no Brasil (best-effort).
+# IMPORTANTE:
+# - O radar consegue puxar automaticamente APENAS as que usam Greenhouse/Lever.
+# - Se algum slug não existir, o main.py ignora e segue (não quebra).
 company_watchlist:
   greenhouse_boards:
+    # Brasil / LatAm (muitas vagas boas)
     - "nubank"
     - "stone"
     - "ifoodcarreiras"
@@ -222,14 +238,56 @@ company_watchlist:
     - "hotmartcareersen"
     - "sumup"
     - "gympass"
-    - "okx"
-    - "veriff"
-    - "teachablecareers"
+    - "vtex"
+    - "quintoandar"
+    - "loft"
+    - "credithas"
+    - "mercadolibre"
+    - "olxbrasil"
+    - "rappi"
+    - "zenvia"
+    - "neon"
+    - "picpay"
+    - "c6bank"
+    - "dlocal"
+    - "wildlife"
+    - "kavak"
+    - "ebury"
+    - "pagbank"
+    - "b3"
+    - "rdstation"
+
+    # Globais grandes (algumas têm operação no BR; outras ajudam remoto forte)
     - "stripe"
     - "gitlab"
     - "automatticcareers"
-    - "vitta"
+    - "zapier"
+    - "remotecom"
+    - "deel"
+    - "shopify"
+    - "coinbase"
+    - "workday"
+    - "snowflake"
+    - "datadog"
+    - "okta"
+    - "twilio"
+    - "asana"
+    - "notion"
+    - "figma"
+    - "canva"
+    - "intercom"
+    - "brex"
+    - "wise"
+    - "revolut"
+    - "cloudflare"
+    - "airbnb"
+    - "spotify"
+    - "microsoft"
+    - "google"
+    - "amazon"
+
   lever_companies:
+    # Brasil / LatAm / Fintech / Tech
     - "binance"
     - "bv"
     - "cloudwalk"
@@ -237,7 +295,25 @@ company_watchlist:
     - "ciandt"
     - "swile"
     - "tryjeeves"
-    - "caliza-financial-technologies"
-    - "coins"
-    - "metabase"
     - "tesorio"
+    - "metabase"
+    - "coins"
+    - "caliza-financial-technologies"
+    - "draftea"
+    - "gupy"
+    - "loggi"
+    - "quintoandar"
+    - "loft"
+
+    # Globais / Remote-ish
+    - "brex"
+    - "wise"
+    - "revolut"
+    - "plaid"
+    - "robinhood"
+    - "pinterest"
+    - "discord"
+    - "duolingo"
+    - "openai"
+    - "anthropic"
+
