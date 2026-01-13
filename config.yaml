@@ -3,6 +3,7 @@
 # - Se a vaga NÃO estiver no Brasil: só entra se for 100% remota.
 require_remote_outside_brazil: true
 
+# Palavras que “denunciam” que a vaga é no Brasil (para permitir presencial/híbrido)
 brazil_location_keywords:
   - brasil
   - brazil
@@ -19,34 +20,43 @@ brazil_location_keywords:
   - pr
   - porto alegre
   - rs
+  - florianópolis
+  - florianopolis
+  - sc
   - salvador
   - ba
   - recife
   - pe
+  - fortaleza
+  - ce
   - brasília
   - brasilia
   - df
-  - fortaleza
-  - ce
-  - goiânia
-  - goiania
-  - go
+  - campinas
+  - santos
+  - sorocaba
+  - osasco
+  - barueri
 
+# Palavras que indicam vaga remota (importante para filtrar fora do Brasil)
 remote_keywords:
   - remote
-  - remoto
-  - anywhere
-  - global
-  - worldwide
-  - distributed
+  - fully remote
+  - 100% remote
   - work from home
-  - wfh
+  - anywhere
+  - distributed
   - home office
-  - telecommute
+  - remoto
+  - 100% remoto
+  - trabalho remoto
+  - híbrido
+  - hibrido
+  - hybrid
 
-# Cargos-alvo (PT + EN) — foquei no que você pediu: Director/Head/CFO/VP/SVP
+# Palavras-chave de títulos que você quer (PT + EN)
 target_title_keywords:
-  # CFO / Finance leadership
+  # CFO / Finance
   - cfo
   - chief financial officer
   - diretor financeiro
@@ -56,46 +66,40 @@ target_title_keywords:
   - director of finance
   - head of finance
   - vp finance
-  - vice president finance
-  - svp finance
-  - senior vice president finance
   - vp of finance
+  - svp finance
   - svp of finance
 
-  # Controladoria / Controllership
+  # Accounting / Controllership
+  - controllership director
+  - controller
+  - financial controller
+  - diretoria de controladoria
   - diretor de controladoria
   - diretora de controladoria
-  - director of controllership
-  - controllership director
-  - head of controllership
-  - head of controlling
-  - diretor de contabilidade
-  - diretora de contabilidade
   - accounting director
   - director of accounting
   - head of accounting
+  - head of accounting and tax
+  - accounting and tax director
+  - diretor de contabilidade
+  - diretora de contabilidade
+  - diretor de contabilidade e tax
+  - diretor de contabilidade e tributário
+  - diretor de contabilidade e tributario
 
-  # Tax / Tributário
-  - diretor tributário
-  - diretora tributária
-  - diretor de tax
-  - diretora de tax
+  # Tax
   - tax director
   - director of tax
   - head of tax
-  - head of taxation
+  - diretor tributário
+  - diretora tributária
+  - diretor tributario
+  - diretora tributario
+  - diretor de tax
+  - diretora de tax
   - diretoria tributária
-  - diretor de impostos
-  - diretora de impostos
-
-  # Accounting + Tax (combo)
-  - accounting and tax director
-  - director of accounting and tax
-  - head of accounting and tax
-  - head of accounting & tax
-  - diretor de contabilidade e tax
-  - diretor de contabilidade e tributário
-  - diretor de contabilidade e impostos
+  - diretoria tributaria
 
   # Treasury
   - treasury director
@@ -106,58 +110,103 @@ target_title_keywords:
   - vp treasury
   - svp treasury
 
-# Palavras que aumentam score (encaixe com seu histórico)
-nice_keywords_desc:
-  - latam
-  - latin america
-  - brasil
-  - mexico
-  - emerging markets
-  - controllership
-  - controller
-  - accounting
-  - tax
-  - treasury
-  - fp&a
-  - shared services
-  - ssc
-  - coe
-  - center of excellence
-  - erp
-  - sap
-  - ifrs
-  - us gaap
-  - compliance
-  - transfer pricing
-  - indirect tax
-  - direct tax
-  - vat
-  - payroll
+# “Anti-filtro”: títulos que você NÃO quer (para evitar ruído)
+exclude_title_keywords:
+  - intern
+  - internship
+  - estagi
+  - trainee
+  - junior
+  - júnior
+  - pleno
+  - analyst
+  - analista
+  - especialista
+  - assistente
+  - coordinator
+  - coordenador
+  - coordenadora
+  - supervisor
+  - sr analyst
+  - senior analyst
 
-# Filtro mínimo
-min_score_to_send: 60
-max_items_per_day: 15
+# (Aliases) — deixo repetido com outros nomes comuns de config, caso seu script use outra chave:
+target_titles: *target_title_keywords
+include_title_keywords: *target_title_keywords
+reject_title_keywords: *exclude_title_keywords
+exclude_titles: *exclude_title_keywords
 
-# Fontes REMOTAS (normalmente internacionais/remotas)
-sources:
-  remotive:
-    - "https://remotive.com/api/remote-jobs?search=cfo"
-    - "https://remotive.com/api/remote-jobs?search=finance%20director"
-    - "https://remotive.com/api/remote-jobs?search=head%20of%20finance"
-    - "https://remotive.com/api/remote-jobs?search=tax%20director"
-    - "https://remotive.com/api/remote-jobs?search=treasury"
-  remoteok:
-    - "https://remoteok.com/api"
-  weworkremotely_rss:
-    - "https://weworkremotely.com/remote-jobs.rss"
+# =========================================================
+# EMPRESAS (PRIORIDADE): Brasil (presencial/híbrido ok) + globais (só remoto)
+# Observação importante: aqui eu coloquei empresas que usam Greenhouse ou Lever,
+# porque é isso que seu radar consegue “puxar” direto.
+# =========================================================
 
-# Fontes “BRASIL presencial/híbrido” (e também multinacionais):
-# Aqui você coloca empresas-alvo pelo site de carreiras (Greenhouse/Lever).
+# Prioridade de ordenação (primeiras = mais importantes)
+prioritize_companies:
+  - nubank
+  - stone
+  - ifoodcarreiras
+  - sumup
+  - hotmartcareersbr
+  - gympass
+  - bv
+  - starkbank
+  - cloudwalk
+  - ciandt
+  - swile
+  - tryjeeves
+  - binance
+  - stripe
+  - gitlab
+  - automatticcareers
+  - okx
+  - veriff
+  - teachablecareers
+  - metabase
+  - coins
+  - tesorio
+  - caliza-financial-technologies
+  - hotmartcareersen
+  - vitta
+
+# LISTAS (Greenhouse)
+greenhouse_companies:
+  - nubank
+  - stone
+  - ifoodcarreiras
+  - hotmartcareersbr
+  - hotmartcareersen
+  - sumup
+  - gympass
+  - okx
+  - veriff
+  - vitta
+  - teachablecareers
+  - stripe
+  - gitlab
+  - automatticcareers
+
+# LISTAS (Lever)
+lever_companies:
+  - binance
+  - bv
+  - cloudwalk
+  - starkbank
+  - ciandt
+  - swile
+  - tryjeeves
+  - caliza-financial-technologies
+  - coins
+  - metabase
+  - tesorio
+
+# (Aliases) — caso seu script use estes nomes:
+company_watchlist_greenhouse: *greenhouse_companies
+company_watchlist_lever: *lever_companies
+
+# Estrutura alternativa (caso o script espere aninhado)
 company_watchlist:
-  greenhouse_boards:
-    # exemplo: se a URL for https://boards.greenhouse.io/NOMEAQUI
-    # coloque só o NOMEAQUI abaixo:
-    - "examplecompany"
-  lever_companies:
-    # exemplo: se a URL for https://jobs.lever.co/NOMEAQUI
-    - "examplecompany"
+  greenhouse: *greenhouse_companies
+  lever: *lever_companies
+
