@@ -1,0 +1,42 @@
+name: Daily Job Radar
+
+on:
+  schedule:
+    # 10:10 UTC = 07:10 em São Paulo (UTC-3)
+    - cron: "10 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run job radar
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python main.py
+
+      - name: Commit seen.json updates
+        run: |
+          if [ -f seen.json ]; then
+            git config user.name "job-radar-bot"
+            git config user.email "job-radar-bot@users.noreply.github.com"
+            git add seen.json
+            git diff --cached --quiet || (git commit -m "Update seen jobs" && git push)
+          fi
