@@ -44,8 +44,11 @@ remote_keywords:
   - fully remote
   - 100% remote
   - work from home
+  - wfh
   - anywhere
   - distributed
+  - worldwide
+  - global
   - home office
   - remoto
   - 100% remoto
@@ -54,9 +57,9 @@ remote_keywords:
   - hibrido
   - hybrid
 
-# Palavras-chave de títulos que você quer (PT + EN)
+# Títulos-alvo (PT + EN) — CFO, Director, Head, VP, SVP
 target_title_keywords:
-  # CFO / Finance
+  # CFO / Finance leadership
   - cfo
   - chief financial officer
   - diretor financeiro
@@ -67,41 +70,61 @@ target_title_keywords:
   - head of finance
   - vp finance
   - vp of finance
+  - vice president finance
   - svp finance
   - svp of finance
+  - senior vice president finance
 
   # Accounting / Controllership
   - controllership director
+  - director of controllership
+  - head of controllership
+  - head of controlling
   - controller
   - financial controller
-  - diretoria de controladoria
   - diretor de controladoria
   - diretora de controladoria
+  - diretoria de controladoria
   - accounting director
   - director of accounting
   - head of accounting
-  - head of accounting and tax
-  - accounting and tax director
   - diretor de contabilidade
   - diretora de contabilidade
-  - diretor de contabilidade e tax
-  - diretor de contabilidade e tributário
-  - diretor de contabilidade e tributario
+  - diretor de contabilidade
+  - diretora de contabilidade
 
-  # Tax
+  # Accounting + Tax (combo)
+  - accounting and tax director
+  - director of accounting and tax
+  - head of accounting and tax
+  - head of accounting & tax
+  - accounting & tax director
+  - diretor contábil e tributário
+  - diretora contábil e tributária
+  - diretor de contabilidade e tax
+  - diretora de contabilidade e tax
+  - diretor de contabilidade e tributário
+  - diretora de contabilidade e tributária
+  - diretor de contabilidade e impostos
+  - diretora de contabilidade e impostos
+
+  # Tax / Tributário
   - tax director
   - director of tax
   - head of tax
+  - head of taxation
   - diretor tributário
   - diretora tributária
   - diretor tributario
   - diretora tributario
   - diretor de tax
   - diretora de tax
+  - diretor de impostos
+  - diretora de impostos
   - diretoria tributária
   - diretoria tributaria
 
-  # Treasury
+  # Treasury / Tesouraria
   - treasury director
   - director of treasury
   - head of treasury
@@ -110,7 +133,7 @@ target_title_keywords:
   - vp treasury
   - svp treasury
 
-# “Anti-filtro”: títulos que você NÃO quer (para evitar ruído)
+# Anti-ruído: níveis abaixo que você NÃO quer
 exclude_title_keywords:
   - intern
   - internship
@@ -129,84 +152,92 @@ exclude_title_keywords:
   - supervisor
   - sr analyst
   - senior analyst
+  - manager
+  - gerente
 
-# (Aliases) — deixo repetido com outros nomes comuns de config, caso seu script use outra chave:
-target_titles: *target_title_keywords
-include_title_keywords: *target_title_keywords
-reject_title_keywords: *exclude_title_keywords
-exclude_titles: *exclude_title_keywords
+# Bônus por termos no descritivo (encaixe com Finance/Tax/Accounting/Treasury LATAM)
+nice_keywords_desc:
+  - latam
+  - latin america
+  - brasil
+  - mexico
+  - emerging markets
+  - treasury
+  - tesouraria
+  - controllership
+  - controladoria
+  - controller
+  - accounting
+  - contabilidade
+  - tax
+  - tribut
+  - impostos
+  - fp&a
+  - planejamento financeiro
+  - shared services
+  - ssc
+  - coe
+  - center of excellence
+  - erp
+  - sap
+  - ifrs
+  - us gaap
+  - compliance
+  - transfer pricing
+  - indirect tax
+  - direct tax
+  - vat
+  - payroll
 
-# =========================================================
-# EMPRESAS (PRIORIDADE): Brasil (presencial/híbrido ok) + globais (só remoto)
-# Observação importante: aqui eu coloquei empresas que usam Greenhouse ou Lever,
-# porque é isso que seu radar consegue “puxar” direto.
-# =========================================================
+# Filtro mínimo
+min_score_to_send: 60
+max_items_per_day: 15
 
-# Prioridade de ordenação (primeiras = mais importantes)
-prioritize_companies:
-  - nubank
-  - stone
-  - ifoodcarreiras
-  - sumup
-  - hotmartcareersbr
-  - gympass
-  - bv
-  - starkbank
-  - cloudwalk
-  - ciandt
-  - swile
-  - tryjeeves
-  - binance
-  - stripe
-  - gitlab
-  - automatticcareers
-  - okx
-  - veriff
-  - teachablecareers
-  - metabase
-  - coins
-  - tesorio
-  - caliza-financial-technologies
-  - hotmartcareersen
-  - vitta
+# Fontes “boards” remotas
+sources:
+  remotive:
+    - "https://remotive.com/api/remote-jobs?search=cfo"
+    - "https://remotive.com/api/remote-jobs?search=finance%20director"
+    - "https://remotive.com/api/remote-jobs?search=head%20of%20finance"
+    - "https://remotive.com/api/remote-jobs?search=tax%20director"
+    - "https://remotive.com/api/remote-jobs?search=treasury"
+    - "https://remotive.com/api/remote-jobs?search=vp%20finance"
+    - "https://remotive.com/api/remote-jobs?search=svp%20finance"
+  remoteok:
+    - "https://remoteok.com/api"
+  weworkremotely_rss:
+    - "https://weworkremotely.com/remote-jobs.rss"
 
-# LISTAS (Greenhouse)
-greenhouse_companies:
-  - nubank
-  - stone
-  - ifoodcarreiras
-  - hotmartcareersbr
-  - hotmartcareersen
-  - sumup
-  - gympass
-  - okx
-  - veriff
-  - vitta
-  - teachablecareers
-  - stripe
-  - gitlab
-  - automatticcareers
-
-# LISTAS (Lever)
-lever_companies:
-  - binance
-  - bv
-  - cloudwalk
-  - starkbank
-  - ciandt
-  - swile
-  - tryjeeves
-  - caliza-financial-technologies
-  - coins
-  - metabase
-  - tesorio
-
-# (Aliases) — caso seu script use estes nomes:
-company_watchlist_greenhouse: *greenhouse_companies
-company_watchlist_lever: *lever_companies
-
-# Estrutura alternativa (caso o script espere aninhado)
+# Lista de empresas para monitorar via ATS (Greenhouse e Lever)
+# IMPORTANTE: seu main.py (que te passei) lê exatamente:
+# company_watchlist:
+#   greenhouse_boards: [...]
+#   lever_companies: [...]
 company_watchlist:
-  greenhouse: *greenhouse_companies
-  lever: *lever_companies
-
+  greenhouse_boards:
+    - "nubank"
+    - "stone"
+    - "ifoodcarreiras"
+    - "hotmartcareersbr"
+    - "hotmartcareersen"
+    - "sumup"
+    - "gympass"
+    - "okx"
+    - "veriff"
+    - "teachablecareers"
+    - "stripe"
+    - "gitlab"
+    - "automatticcareers"
+    - "vitta"
+  lever_companies:
+    - "binance"
+    - "bv"
+    - "cloudwalk"
+    - "starkbank"
+    - "ciandt"
+    - "swile"
+    - "tryjeeves"
+    - "caliza-financial-technologies"
+    - "coins"
+    - "metabase"
+    - "tesorio"
