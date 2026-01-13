@@ -1,0 +1,163 @@
+# Regra principal:
+# - Se a vaga estiver no Brasil: pode presencial/híbrida/remota.
+# - Se a vaga NÃO estiver no Brasil: só entra se for 100% remota.
+require_remote_outside_brazil: true
+
+brazil_location_keywords:
+  - brasil
+  - brazil
+  - são paulo
+  - sao paulo
+  - sp
+  - rio de janeiro
+  - rj
+  - belo horizonte
+  - bh
+  - minas gerais
+  - mg
+  - curitiba
+  - pr
+  - porto alegre
+  - rs
+  - salvador
+  - ba
+  - recife
+  - pe
+  - brasília
+  - brasilia
+  - df
+  - fortaleza
+  - ce
+  - goiânia
+  - goiania
+  - go
+
+remote_keywords:
+  - remote
+  - remoto
+  - anywhere
+  - global
+  - worldwide
+  - distributed
+  - work from home
+  - wfh
+  - home office
+  - telecommute
+
+# Cargos-alvo (PT + EN) — foquei no que você pediu: Director/Head/CFO/VP/SVP
+target_title_keywords:
+  # CFO / Finance leadership
+  - cfo
+  - chief financial officer
+  - diretor financeiro
+  - diretora financeira
+  - diretoria financeira
+  - finance director
+  - director of finance
+  - head of finance
+  - vp finance
+  - vice president finance
+  - svp finance
+  - senior vice president finance
+  - vp of finance
+  - svp of finance
+
+  # Controladoria / Controllership
+  - diretor de controladoria
+  - diretora de controladoria
+  - director of controllership
+  - controllership director
+  - head of controllership
+  - head of controlling
+  - diretor de contabilidade
+  - diretora de contabilidade
+  - accounting director
+  - director of accounting
+  - head of accounting
+
+  # Tax / Tributário
+  - diretor tributário
+  - diretora tributária
+  - diretor de tax
+  - diretora de tax
+  - tax director
+  - director of tax
+  - head of tax
+  - head of taxation
+  - diretoria tributária
+  - diretor de impostos
+  - diretora de impostos
+
+  # Accounting + Tax (combo)
+  - accounting and tax director
+  - director of accounting and tax
+  - head of accounting and tax
+  - head of accounting & tax
+  - diretor de contabilidade e tax
+  - diretor de contabilidade e tributário
+  - diretor de contabilidade e impostos
+
+  # Treasury
+  - treasury director
+  - director of treasury
+  - head of treasury
+  - diretor de tesouraria
+  - diretora de tesouraria
+  - vp treasury
+  - svp treasury
+
+# Palavras que aumentam score (encaixe com seu histórico)
+nice_keywords_desc:
+  - latam
+  - latin america
+  - brasil
+  - mexico
+  - emerging markets
+  - controllership
+  - controller
+  - accounting
+  - tax
+  - treasury
+  - fp&a
+  - shared services
+  - ssc
+  - coe
+  - center of excellence
+  - erp
+  - sap
+  - ifrs
+  - us gaap
+  - compliance
+  - transfer pricing
+  - indirect tax
+  - direct tax
+  - vat
+  - payroll
+
+# Filtro mínimo
+min_score_to_send: 60
+max_items_per_day: 15
+
+# Fontes REMOTAS (normalmente internacionais/remotas)
+sources:
+  remotive:
+    - "https://remotive.com/api/remote-jobs?search=cfo"
+    - "https://remotive.com/api/remote-jobs?search=finance%20director"
+    - "https://remotive.com/api/remote-jobs?search=head%20of%20finance"
+    - "https://remotive.com/api/remote-jobs?search=tax%20director"
+    - "https://remotive.com/api/remote-jobs?search=treasury"
+  remoteok:
+    - "https://remoteok.com/api"
+  weworkremotely_rss:
+    - "https://weworkremotely.com/remote-jobs.rss"
+
+# Fontes “BRASIL presencial/híbrido” (e também multinacionais):
+# Aqui você coloca empresas-alvo pelo site de carreiras (Greenhouse/Lever).
+company_watchlist:
+  greenhouse_boards:
+    # exemplo: se a URL for https://boards.greenhouse.io/NOMEAQUI
+    # coloque só o NOMEAQUI abaixo:
+    - "examplecompany"
+  lever_companies:
+    # exemplo: se a URL for https://jobs.lever.co/NOMEAQUI
+    - "examplecompany"
