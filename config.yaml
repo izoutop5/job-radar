@@ -1,18 +1,15 @@
 require_remote_outside_brazil: true
 
-min_score_to_send: 72
-max_items_per_day: 25
+min_score_to_send: 75
+max_items_per_day: 20
 
 brazil_location_keywords:
   - brasil
   - brazil
   - são paulo
   - sao paulo
-  - sp
   - rio de janeiro
-  - rj
   - belo horizonte
-  - bh
   - curitiba
   - porto alegre
   - florianópolis
@@ -23,21 +20,26 @@ brazil_location_keywords:
   - barueri
   - osasco
 
+# Remoto: para fora do Brasil, vamos considerar remoto só se aparecer no TÍTULO/LOCATION (não na descrição)
 remote_keywords:
   - remote
   - fully remote
   - 100% remote
-  - work from home
-  - wfh
+  - remote (apac)
+  - remote (emea)
+  - remote (latam)
+  - remote (global)
   - anywhere
   - distributed
-  - worldwide
+  - work from home
+  - wfh
   - home office
   - remoto
   - 100% remoto
   - trabalho remoto
 
-must_contain_any_of:
+# Anti-ruído: o TÍTULO precisa conter pelo menos 1 desses termos (ou ser CFO)
+domain_keywords_in_title:
   - finance
   - financial
   - accounting
@@ -46,15 +48,16 @@ must_contain_any_of:
   - controlling
   - tax
   - taxation
-  - tribut
-  - fiscal
-  - impostos
   - treasury
-  - tesouraria
   - fp&a
+  - fiscal
+  - tribut
+  - impostos
   - controladoria
   - contab
+  - tesouraria
 
+# Títulos-alvo (sem “director” puro, para não confundir com Social Media Director)
 target_title_keywords:
   - cfo
   - chief financial officer
@@ -64,14 +67,15 @@ target_title_keywords:
   - director of finance
   - head of finance
   - vp finance
-  - vice president finance
   - svp finance
+  - vice president finance
   - senior vice president finance
 
+  - financial controller
+  - controller
   - controllership director
   - director of controllership
   - head of controllership
-  - head of controlling
   - diretor de controladoria
   - diretora de controladoria
 
@@ -81,17 +85,9 @@ target_title_keywords:
   - diretor de contabilidade
   - diretora de contabilidade
 
-  - accounting and tax director
-  - director of accounting and tax
-  - head of accounting and tax
-  - accounting & tax director
-  - diretor contábil e tributário
-  - diretora contábil e tributária
-
   - tax director
   - director of tax
   - head of tax
-  - head of taxation
   - diretor tributário
   - diretora tributária
   - diretor de impostos
@@ -102,10 +98,17 @@ target_title_keywords:
   - head of treasury
   - diretor de tesouraria
   - diretora de tesouraria
-  - vp treasury
-  - svp treasury
 
 exclude_title_keywords:
+  - social media
+  - marketing
+  - sales
+  - partnerships
+  - external relations
+  - risk
+  - hr
+  - people
+  - recruiter
   - intern
   - internship
   - estagi
@@ -134,202 +137,10 @@ nice_keywords_desc:
   - us gaap
   - compliance
   - transfer pricing
-  - treasury
-  - tesouraria
-  - controllership
-  - controladoria
-  - tax
-  - tribut
-
-# =========================
-# LISTAS AUTOMÁTICAS (Top 1000 mundo + Top 100 BR)
-# =========================
-company_lists:
-  enable_dynamic_lists: true
-
-  # Top 1000 empresas do mundo (públicas) por receita (TTM)
-  global_top1000:
-    enabled: true
-    limit: 1000
-    csv_url: "https://companiesmarketcap.com/largest-companies-by-revenue?download=csv"
-
-  # Top empresas do Brasil (públicas) por receita (TTM) + complementos privados
-  brazil_top100:
-    enabled: true
-    limit: 100
-    csv_url: "https://companiesmarketcap.com/brazil/largest-companies-by-revenue-in-brazil/?download=csv"
-    private_additions:
-      # Healthcare Brasil
-      - Hospital Israelita Albert Einstein
-      - Hospital Sírio-Libanês
-      - Rede D'Or
-      - Fleury
-      - Dasa
-      - Hapvida
-      - NotreDame Intermédica
-      - Hermes Pardini
-      - Sabin
-      - Eurofarma
-      - Aché
-      - EMS
-      - Cimed
-
-      # Varejo / consumo / serviços BR
-      - Magazine Luiza
-      - Via
-      - Mercado Livre
-      - iFood
-      - Grupo Boticário
-      - Natura
-      - Havaianas
-      - Gerdau
-      - Votorantim
-      - CSN
-      - Suzano
-      - Klabin
-      - Embraer
-      - Localiza
-      - CCR
-      - Rumo
-
-      # Agro / alimentos BR
-      - Amaggi
-      - SLC Agrícola
-      - Raízen
-      - Cosan
-      - São Martinho
-      - Cargill Brasil
-      - Bunge Brasil
-
-      # Bancos / finanças BR
-      - Itaú Unibanco
-      - Bradesco
-      - Banco do Brasil
-      - Santander Brasil
-      - BTG Pactual
-      - Nubank
-      - XP
-      - Stone
-      - PagBank
-
-  # Mega privadas globais (não aparecem em listas “public companies”)
-  global_private_megas:
-    enabled: true
-    additions:
-      - Cargill
-      - Koch Industries
-      - State Grid
-      - China National Petroleum (CNPC)
-      - Sinopec Group
-      - Saudi Aramco
-      - Vitol
-      - Trafigura
-      - Glencore
-      - Huawei
-      - ByteDance
-      - IKEA
-      - Bosch
-      - Deloitte
-      - PwC
-      - EY
-      - KPMG
-
-# Bônus (priorização)
-bonuses:
-  global_top1000_bonus: 10
-  brazil_top100_bonus: 8
-  manual_priority_bonus: 6
-
-# Prioridades manuais extras (você pode editar depois; NÃO é obrigatório)
-priority_employers_manual:
-  # Autos
-  - Toyota
-  - Volkswagen
-  - Stellantis
-  - General Motors
-  - Ford
-  - Mercedes-Benz
-  - BMW
-  - Hyundai
-  - Kia
-  - Honda
-  - BYD
-  - Tesla
-
-  # Oil & Gas / Energia
-  - Petrobras
-  - Shell
-  - BP
-  - Chevron
-  - ExxonMobil
-  - TotalEnergies
-  - Equinor
-  - ConocoPhillips
-
-  # Mineração / metais
-  - Vale
-  - Rio Tinto
-  - BHP
-  - Anglo American
-  - Freeport-McMoRan
-
-  # Bancos / Asset managers globais
-  - JPMorgan Chase
-  - Bank of America
-  - Citi
-  - Wells Fargo
-  - Goldman Sachs
-  - Morgan Stanley
-  - HSBC
-  - Barclays
-  - UBS
-  - Credit Suisse
-  - BNP Paribas
-  - Santander
-  - BlackRock
-  - Vanguard
-  - Fidelity
-  - KKR
-  - Blackstone
-  - Carlyle
+  - direct tax
+  - indirect tax
 
 sources:
-  # Cobertura ampla (Brasil + países relevantes)
-  # Requer secrets ADZUNA_APP_ID e ADZUNA_APP_KEY
-  adzuna:
-    enabled: true
-    pages_per_query: 1
-    results_per_page: 50
-    countries:
-      - br
-      - us
-      - gb
-      - ca
-      - au
-      - de
-      - fr
-      - nl
-      - at
-      - pl
-      - za
-      - in
-    queries:
-      - "CFO"
-      - "\"Finance Director\""
-      - "\"Head of Finance\""
-      - "\"Tax Director\""
-      - "\"Treasury Director\""
-      - "\"Controllership Director\""
-      - "\"Accounting Director\""
-      - "\"Director of Accounting and Tax\""
-      - "\"VP Finance\""
-      - "\"SVP Finance\""
-      - "\"Diretor Financeiro\""
-      - "\"Diretor Tributário\""
-      - "\"Diretor de Controladoria\""
-      - "\"Diretor de Tesouraria\""
-      - "\"Diretor de Contabilidade\""
-
   remotive:
     enabled: true
     urls:
@@ -349,6 +160,7 @@ sources:
     urls:
       - "https://weworkremotely.com/remote-jobs.rss"
 
+# (Opcional) watchlist GH/Lever
 company_watchlist:
   greenhouse_boards:
     - "nubank"
@@ -364,3 +176,5 @@ company_watchlist:
     - "cloudwalk"
     - "starkbank"
     - "ciandt"
+    - "coins"
+
